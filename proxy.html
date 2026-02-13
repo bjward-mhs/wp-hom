@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Proxy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .toolbar {
+            background: #2d2d2d;
+            padding: 15px;
+            border-bottom: 2px solid #404040;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .url-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #404040;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .url-input:focus {
+            border-color: #0084ff;
+        }
+        
+        .go-btn {
+            padding: 10px 25px;
+            background: #0084ff;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .go-btn:hover {
+            background: #0073e6;
+        }
+        
+        .go-btn:active {
+            background: #0062cc;
+        }
+        
+        #proxy-frame {
+            flex: 1;
+            border: none;
+            background: #fff;
+        }
+        
+        .status {
+            padding: 8px 15px;
+            background: #404040;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <input 
+            type="text" 
+            class="url-input" 
+            id="urlInput" 
+            placeholder="Enter URL (e.g., https://example.com)"
+            autocomplete="off"
+        >
+        <button class="go-btn" onclick="loadUrl()">Go</button>
+    </div>
+    
+    <div class="status" id="status">Ready</div>
+    
+    <iframe id="proxy-frame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+    
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const proxyFrame = document.getElementById('proxy-frame');
+        const status = document.getElementById('status');
+        
+        // Use a CORS proxy service
+        const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+        // Alternative proxies:
+        // const PROXY_URL = 'https://corsproxy.io/?';
+        // const PROXY_URL = 'https://api.codetabs.com/v1/proxy?quest=';
+        
+        function loadUrl() {
+            let url = urlInput.value.trim();
+            
+            if (!url) {
+                status.textContent = 'Please enter a URL';
+                return;
+            }
+            
+            // Add https:// if no protocol specified
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            status.textContent = `Loading ${url}...`;
+            
+            try {
+                // Use proxy service to bypass CORS
+                const proxiedUrl = PROXY_URL + encodeURIComponent(url);
+                proxyFrame.src = proxiedUrl;
+                
+                proxyFrame.onload = () => {
+                    status.textContent = `Loaded: ${url}`;
+                };
+                
+                proxyFrame.onerror = () => {
+                    status.textContent = `Error loading: ${url}`;
+                };
+            } catch (error) {
+                status.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        // Allow Enter key to load URL
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadUrl();
+            }
+        });
+        
+        // Load default page
+        window.onload = () => {
+            urlInput.focus();
+        };
+    </script>
+</body>
+</html>
