@@ -27,10 +27,12 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .url-input {
             flex: 1;
+            min-width: 200px;
             padding: 10px 15px;
             border: 2px solid #404040;
             border-radius: 8px;
@@ -63,6 +65,21 @@
         .go-btn:active {
             background: #0062cc;
         }
+
+        .proxy-select {
+            padding: 10px 15px;
+            border: 2px solid #404040;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .proxy-select:focus {
+            border-color: #0084ff;
+        }
         
         #proxy-frame {
             flex: 1;
@@ -75,6 +92,19 @@
             background: #404040;
             font-size: 12px;
             color: #aaa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-error {
+            background: #d32f2f;
+            color: #fff;
+        }
+
+        .status-success {
+            background: #388e3c;
+            color: #fff;
         }
     </style>
 </head>
@@ -84,32 +114,46 @@
             type="text" 
             class="url-input" 
             id="urlInput" 
-            placeholder="Enter URL (e.g., https://example.com)"
+            placeholder="Enter URL (e.g., example.com)"
             autocomplete="off"
         >
+        <select class="proxy-select" id="proxySelect">
+            <option value="https://api.allorigins.win/raw?url=">AllOrigins</option>
+            <option value="https://corsproxy.io/?">CorsProxy.io</option>
+            <option value="https://api.codetabs.com/v1/proxy?quest=">CodeTabs</option>
+            <option value="https://corsproxy.org/?">CorsProxy.org</option>
+        </select>
         <button class="go-btn" onclick="loadUrl()">Go</button>
     </div>
     
-    <div class="status" id="status">Ready</div>
+    <div class="status" id="status">
+        <span id="statusText">Ready - Select a proxy and enter a URL</span>
+    </div>
     
-    <iframe id="proxy-frame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+    <iframe id="proxy-frame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads"></iframe>
     
     <script>
         const urlInput = document.getElementById('urlInput');
         const proxyFrame = document.getElementById('proxy-frame');
-        const status = document.getElementById('status');
+        const statusDiv = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const proxySelect = document.getElementById('proxySelect');
         
-        // Use a CORS proxy service
-        const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-        // Alternative proxies:
-        // const PROXY_URL = 'https://corsproxy.io/?';
-        // const PROXY_URL = 'https://api.codetabs.com/v1/proxy?quest=';
+        function updateStatus(message, type = 'info') {
+            statusText.textContent = message;
+            statusDiv.className = 'status';
+            if (type === 'error') {
+                statusDiv.classList.add('status-error');
+            } else if (type === 'success') {
+                statusDiv.classList.add('status-success');
+            }
+        }
         
         function loadUrl() {
             let url = urlInput.value.trim();
             
             if (!url) {
-                status.textContent = 'Please enter a URL';
+                updateStatus('Please enter a URL', 'error');
                 return;
             }
             
@@ -118,22 +162,29 @@
                 url = 'https://' + url;
             }
             
-            status.textContent = `Loading ${url}...`;
+            const selectedProxy = proxySelect.value;
+            updateStatus(`Loading ${url}...`, 'info');
             
             try {
-                // Use proxy service to bypass CORS
-                const proxiedUrl = PROXY_URL + encodeURIComponent(url);
+                const proxiedUrl = selectedProxy + encodeURIComponent(url);
                 proxyFrame.src = proxiedUrl;
                 
+                // Timeout check
+                const timeout = setTimeout(() => {
+                    updateStatus(`Timeout loading ${url} - try a different proxy`, 'error');
+                }, 15000);
+                
                 proxyFrame.onload = () => {
-                    status.textContent = `Loaded: ${url}`;
+                    clearTimeout(timeout);
+                    updateStatus(`Loaded: ${url}`, 'success');
                 };
                 
                 proxyFrame.onerror = () => {
-                    status.textContent = `Error loading: ${url}`;
+                    clearTimeout(timeout);
+                    updateStatus(`Error loading ${url} - try a different proxy`, 'error');
                 };
             } catch (error) {
-                status.textContent = `Error: ${error.message}`;
+                updateStatus(`Error: ${error.message}`, 'error');
             }
         }
         
@@ -144,7 +195,7 @@
             }
         });
         
-        // Load default page
+        // Focus on URL input when page loads
         window.onload = () => {
             urlInput.focus();
         };
