@@ -1,1 +1,42 @@
-<!DOCTYPE html>\n<html>\n<head>\n    <title>Google Proxy</title>\n    <style>\n        /* Basic styles for the page */\n        body { font-family: Arial, sans-serif; margin: 20px; }\n        h1 { color: #4285F4; }\n        iframe { width: 100%; height: 80vh; border: none; }\n    </style>\n</head>\n<body>\n    <h1>Google Proxy</h1>\n    <iframe src="https://www.google.com" title="Google"></iframe>\n</body>\n</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Proxy</title>
+    <style>
+        body {font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9;}
+        #search-container {margin: 20px auto;}
+        #search-box {width: 400px; padding: 10px; font-size: 16px;}
+        #search-button, #proxy-button {padding: 10px 20px; font-size: 16px;}
+        #iframe-container {display: none; margin-top: 20px;}
+        iframe {width: 100%; height: 600px; border: none;}
+    </style>
+    <script>
+        function performSearch() {
+            const query = document.getElementById('search-box').value;
+            let url;
+            if (query.startsWith('http://') || query.startsWith('https://')) {
+                url = query;
+            } else {
+                url = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+            }
+            loadProxy(url);
+        }
+        
+        function loadProxy(url) {
+            document.getElementById('iframe').src = 'https://your-cors-proxy.com/' + url;
+            document.getElementById('iframe-container').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <h1>Google Proxy</h1>
+    <div id="search-container">
+        <input type="text" id="search-box" placeholder="Search or enter a URL" />
+        <button id="search-button" onclick="performSearch()">Search</button>
+        <button id="proxy-button" onclick="loadProxy(document.getElementById('search-box').value)">Load Proxy</button>
+    </div>
+    <div id="iframe-container">
+        <iframe id="iframe" src=""></iframe>
+    </div>
+</body>
+</html>
