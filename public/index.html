@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Web Proxy - No Tracking</title>
+    <title>Private Browser Proxy - No Server Needed</title>
     <style>
         * {
             margin: 0;
@@ -16,243 +16,465 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            flex-direction: column;
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 800px;
-            width: 100%;
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 32px;
+        .header h1 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
+        .badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
-        .privacy-features {
-            background: #f8f9ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 30px;
-            border-radius: 8px;
-        }
-
-        .privacy-features h3 {
-            color: #667eea;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .privacy-features ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .privacy-features li {
-            padding: 5px 0;
-            color: #555;
-            font-size: 14px;
-        }
-
-        .privacy-features li:before {
-            content: "✓ ";
-            color: #2ea043;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        .url-form {
+        .controls {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .url-container {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
         }
 
         .url-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e1e4e8;
+            width: 100%;
+            padding: 12px 100px 12px 15px;
+            border: none;
             border-radius: 10px;
-            font-size: 16px;
+            background: white;
+            font-size: 14px;
             outline: none;
-            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .url-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
         .go-btn {
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 20px;
+            background: #667eea;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
-            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-size: 13px;
+            transition: all 0.2s;
         }
 
         .go-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            background: #5568d3;
         }
 
-        .go-btn:active {
-            transform: translateY(0);
+        .mode-select {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .new-window-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .new-window-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .status {
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status.error {
+            background: rgba(211, 47, 47, 0.9);
+        }
+
+        .status.success {
+            background: rgba(46, 160, 67, 0.9);
+        }
+
+        .status.loading {
+            background: rgba(31, 111, 235, 0.9);
+        }
+
+        #proxyFrame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        .welcome {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .welcome-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .welcome-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .welcome-content p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
         }
 
         .quick-links {
             display: flex;
             gap: 10px;
+            justify-content: center;
             flex-wrap: wrap;
+            margin-top: 20px;
         }
 
         .quick-link {
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: #f6f8fa;
             border: 1px solid #e1e4e8;
             border-radius: 20px;
-            text-decoration: none;
             color: #667eea;
-            font-size: 13px;
-            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .quick-link:hover {
             background: #667eea;
             color: white;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
-        .info {
-            margin-top: 30px;
-            padding: 20px;
-            background: #fff9e6;
-            border-radius: 10px;
-            border: 1px solid #f4d03f;
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            text-align: left;
         }
 
-        .info h3 {
-            color: #f39c12;
+        .info-box h3 {
+            color: #667eea;
             font-size: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .info p {
+        .info-box ul {
             color: #666;
             font-size: 13px;
             line-height: 1.6;
+            padding-left: 20px;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .url-form {
+        @media (max-width: 768px) {
+            .controls {
                 flex-direction: column;
             }
 
-            .go-btn {
+            .url-container {
+                width: 100%;
+            }
+
+            .mode-select, .new-window-btn {
                 width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔒 Private Web Proxy</h1>
-        <p class="subtitle">Browse the web privately. No tracking. No logs. Just you.</p>
-
-        <div class="privacy-features">
-            <h3>🛡️ Privacy Features</h3>
-            <ul>
-                <li>Runs 100% locally on your computer</li>
-                <li>No external services or third parties</li>
-                <li>No logging or tracking whatsoever</li>
-                <li>You control everything</li>
-            </ul>
-        </div>
-
-        <form class="url-form" onsubmit="return loadUrl(event)">
-            <input 
-                type="text" 
-                class="url-input" 
-                id="urlInput" 
-                placeholder="Enter any URL (e.g., google.com, youtube.com, reddit.com)"
-                autocomplete="off"
-                required
-            >
-            <button type="submit" class="go-btn">Go</button>
-        </form>
-
-        <div class="quick-links">
-            <span style="color: #999; font-size: 13px; margin-right: 10px;">Quick links:</span>
-            <a class="quick-link" onclick="quickLoad('https://www.google.com')">Google</a>
-            <a class="quick-link" onclick="quickLoad('https://www.youtube.com')">YouTube</a>
-            <a class="quick-link" onclick="quickLoad('https://www.reddit.com')">Reddit</a>
-            <a class="quick-link" onclick="quickLoad('https://www.wikipedia.org')">Wikipedia</a>
-            <a class="quick-link" onclick="quickLoad('https://www.github.com')">GitHub</a>
-        </div>
-
-        <div class="info">
-            <h3>ℹ️ How It Works</h3>
-            <p>
-                This proxy server runs entirely on your machine. When you browse through it, 
-                your requests go through your local server instead of directly to websites. 
-                No data is collected, stored, or sent to any third parties. It's just you and the web.
-            </p>
+    <div class="header">
+        <h1>
+            🔒 Browser Proxy
+            <span class="badge">No Server</span>
+            <span class="badge">Pure JS</span>
+        </h1>
+        <div class="controls">
+            <div class="url-container">
+                <input 
+                    type="text" 
+                    class="url-input" 
+                    id="urlInput" 
+                    placeholder="Enter URL (e.g., example.com)"
+                    autocomplete="off"
+                >
+                <button class="go-btn" onclick="loadUrl()">Go</button>
+            </div>
+            <select class="mode-select" id="modeSelect">
+                <option value="iframe">Embedded Mode</option>
+                <option value="fetch">Fetch Mode</option>
+                <option value="window">New Window</option>
+            </select>
+            <button class="new-window-btn" onclick="openInNewWindow()">🔗 Open Current</button>
         </div>
     </div>
 
+    <div class="status" id="status">
+        <span id="statusText">Ready - Enter a URL to browse</span>
+    </div>
+
+    <div class="content" id="content">
+        <div class="welcome" id="welcome">
+            <div class="welcome-content">
+                <h2>🌐 Pure Browser Proxy</h2>
+                <p>
+                    This proxy runs <strong>100% in your browser</strong>. No server needed, 
+                    no installation, just pure JavaScript. Works completely offline once loaded.
+                </p>
+
+                <div class="info-box">
+                    <h3>🎯 How to Use:</h3>
+                    <ul>
+                        <li><strong>Embedded Mode:</strong> Load sites in a frame (some sites may block this)</li>
+                        <li><strong>Fetch Mode:</strong> Download and display pages (better compatibility)</li>
+                        <li><strong>New Window:</strong> Open in a popup window (most reliable)</li>
+                    </ul>
+                </div>
+
+                <div class="quick-links">
+                    <a class="quick-link" onclick="quickLoad('https://example.com')">Example.com</a>
+                    <a class="quick-link" onclick="quickLoad('https://wikipedia.org')">Wikipedia</a>
+                    <a class="quick-link" onclick="quickLoad('https://archive.org')">Archive.org</a>
+                    <a class="quick-link" onclick="quickLoad('https://github.com')">GitHub</a>
+                </div>
+            </div>
+        </div>
+        <iframe id="proxyFrame" style="display: none;"></iframe>
+    </div>
+
     <script>
-        function loadUrl(event) {
-            event.preventDefault();
-            let url = document.getElementById('urlInput').value.trim();
-            
-            if (!url) return false;
-            
-            // Add https:// if no protocol specified
+        const urlInput = document.getElementById('urlInput');
+        const proxyFrame = document.getElementById('proxyFrame');
+        const modeSelect = document.getElementById('modeSelect');
+        const statusDiv = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const welcome = document.getElementById('welcome');
+
+        let currentUrl = '';
+
+        // CORS proxy options - we'll try them in order
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.org/?',
+        ];
+
+        let currentProxyIndex = 0;
+
+        function updateStatus(message, type = 'info') {
+            statusText.textContent = message;
+            statusDiv.className = 'status';
+            if (type === 'error') statusDiv.classList.add('error');
+            else if (type === 'success') statusDiv.classList.add('success');
+            else if (type === 'loading') statusDiv.classList.add('loading');
+        }
+
+        function normalizeUrl(url) {
+            url = url.trim();
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
+            return url;
+        }
 
-            // Navigate to the proxied URL
-            window.location.href = `/proxy?url=${encodeURIComponent(url)}`;
-            return false;
+        async function loadUrl() {
+            const url = normalizeUrl(urlInput.value);
+            if (!url) {
+                updateStatus('Please enter a URL', 'error');
+                return;
+            }
+
+            currentUrl = url;
+            const mode = modeSelect.value;
+
+            welcome.style.display = 'none';
+
+            if (mode === 'window') {
+                openInNewWindow();
+                return;
+            }
+
+            if (mode === 'iframe') {
+                loadInIframe(url);
+            } else if (mode === 'fetch') {
+                await loadWithFetch(url);
+            }
+        }
+
+        function loadInIframe(url) {
+            updateStatus(`Loading ${url}...`, 'loading');
+            proxyFrame.style.display = 'block';
+            
+            const proxiedUrl = CORS_PROXIES[currentProxyIndex] + encodeURIComponent(url);
+            proxyFrame.src = proxiedUrl;
+
+            const timeout = setTimeout(() => {
+                updateStatus(`Still loading... This site might not work in embedded mode. Try "New Window" mode.`, 'loading');
+            }, 5000);
+
+            proxyFrame.onload = () => {
+                clearTimeout(timeout);
+                updateStatus(`✓ Loaded: ${url}`, 'success');
+            };
+
+            proxyFrame.onerror = () => {
+                clearTimeout(timeout);
+                currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+                updateStatus(`Failed to load. Try switching modes or use "New Window".`, 'error');
+            };
+        }
+
+        async function loadWithFetch(url) {
+            updateStatus(`Fetching ${url}...`, 'loading');
+            proxyFrame.style.display = 'block';
+
+            let lastError = null;
+            let success = false;
+
+            // Try each proxy
+            for (let i = 0; i < CORS_PROXIES.length; i++) {
+                const proxy = CORS_PROXIES[i];
+                try {
+                    updateStatus(`Trying proxy ${i + 1}/${CORS_PROXIES.length}...`, 'loading');
+                    
+                    const response = await fetch(proxy + encodeURIComponent(url), {
+                        method: 'GET',
+                        mode: 'cors',
+                    });
+
+                    if (response.ok) {
+                        const html = await response.text();
+                        
+                        // Create a blob URL to display the content
+                        const blob = new Blob([html], { type: 'text/html' });
+                        const blobUrl = URL.createObjectURL(blob);
+                        
+                        proxyFrame.src = blobUrl;
+                        updateStatus(`✓ Loaded: ${url}`, 'success');
+                        success = true;
+                        break;
+                    }
+                } catch (error) {
+                    lastError = error;
+                    console.log(`Proxy ${i + 1} failed:`, error.message);
+                }
+            }
+
+            if (!success) {
+                updateStatus(`❌ All proxies failed. Try "New Window" mode or a different site.`, 'error');
+                
+                // Offer to open in new window
+                setTimeout(() => {
+                    if (confirm('Unable to load in proxy mode. Open in new window instead?')) {
+                        openInNewWindow();
+                    }
+                }, 1000);
+            }
+        }
+
+        function openInNewWindow() {
+            const url = currentUrl || normalizeUrl(urlInput.value);
+            if (!url) {
+                updateStatus('Please enter a URL first', 'error');
+                return;
+            }
+
+            // Try multiple proxies
+            const proxy = CORS_PROXIES[currentProxyIndex];
+            const proxiedUrl = proxy + encodeURIComponent(url);
+            
+            const newWindow = window.open(proxiedUrl, '_blank', 'width=1200,height=800,menubar=yes,toolbar=yes,location=yes');
+            
+            if (newWindow) {
+                updateStatus(`✓ Opened ${url} in new window`, 'success');
+                currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+            } else {
+                updateStatus('❌ Popup blocked. Please allow popups for this page.', 'error');
+            }
         }
 
         function quickLoad(url) {
-            window.location.href = `/proxy?url=${encodeURIComponent(url)}`;
+            urlInput.value = url;
+            loadUrl();
         }
 
-        // Focus on input when page loads
+        // Enter key support
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadUrl();
+            }
+        });
+
+        // Focus on load
         window.onload = () => {
-            document.getElementById('urlInput').focus();
+            urlInput.focus();
         };
     </script>
 </body>
