@@ -1,227 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Calculator</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .container {
-        display: flex;
-        flex-direction: row;
-        gap: 2rem;
-        align-items: flex-start;
-        justify-content: center;
-        width: 100vw;
-        max-width: 1100px;
-        margin-top: 2rem;
-      }
-      .calculator {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        width: 350px;
-        min-width: 320px;
-      }
-      .calculator h2 {
-        margin-bottom: 1rem;
-      }
-      .form-group {
-        margin-bottom: 1rem;
-      }
-      label {
-        display: block;
-        margin-bottom: 0.3rem;
-        font-weight: bold;
-      }
-      input[type="number"] {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      button {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 4px;
-        background: #4285f4;
-        color: #fff;
-        font-size: 1rem;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #357ae8;
-      }
-      .result {
-        margin-top: 1.5rem;
-        font-size: 1.1rem;
-        color: #333;
-      }
-      .checklist {
-        background: #fff;
-        padding: 2rem 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        width: 400px;
-        min-width: 320px;
-      }
-      .checklist h3 {
-        margin-top: 0;
-      }
-      .repair-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .repair-table th, .repair-table td {
-        padding: 0.4rem 0.2rem;
-        text-align: center;
-      }
-      .repair-table th {
-        background: #f0f0f0;
-      }
-      .repair-table tr:nth-child(even) {
-        background: #fafafa;
-      }
-      .repair-table input[type="radio"] {
-        margin: 0 0.2rem;
-      }
-      .repair-table label {
-        font-weight: normal;
-        margin-bottom: 0;
-      }
-      .repair-total {
-        margin-top: 1rem;
-        font-weight: bold;
-        text-align: right;
-      }
-    </style>
-  </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Deal Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .analyzer {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 400px;
+      margin-bottom: 2rem;
+    }
+    .analyzer h2 {
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .repair-list {
+      margin-bottom: 1rem;
+    }
+    .repair-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .repair-item label {
+      flex: 1;
+      font-weight: normal;
+      margin-bottom: 0;
+    }
+    .repair-item input[type="number"] {
+      width: 80px;
+      margin-left: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #4285f4;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357ae8;
+    }
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    .checklist {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      width: 400px;
+    }
+    .checklist h3 {
+      margin-top: 0;
+    }
+    .checklist ul {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
   <body>
-    <div class="container">
-      <div class="calculator">
-        <h2>Real Estate Calculator</h2>
-        <div class="form-group">
-          <label for="arv">After Repair Value (ARV) ($)</label>
-          <input type="number" id="arv" min="0" placeholder="e.g. 350000">
-        </div>
-        <div class="form-group">
-          <label for="repairCosts">Repair Costs ($)</label>
-          <input type="number" id="repairCosts" min="0" placeholder="Auto-calculated" readonly>
-        </div>
-        <div class="form-group">
-          <label for="purchasePrice">Purchase Price ($)</label>
-          <input type="number" id="purchasePrice" min="0" placeholder="e.g. 200000">
-        </div>
-        <div class="form-group">
-          <label for="assignmentFee">Assignment Fee ($)</label>
-          <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000">
-        </div>
-        <div class="form-group">
-          <label for="closingCosts">Closing Costs ($)</label>
-          <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000">
-        </div>
-        <button onclick="calculateWholesale()">Calculate</button>
-        <div class="result" id="result"></div>
-        <div style="margin-top:2rem; text-align:center;">
-          <button onclick="window.open('assignment-analyzer.html', '_blank')" style="background:#6c47e6;">Open ARV Calculator</button>
-          <div style="font-size:0.95rem; color:#555; margin-top:0.5rem;">(Opens in new tab)</div>
-        </div>
+    <div class="analyzer">
+      <h2>ARV Calculator</h2>
+      <div class="form-group">
+        <label>Comparable Sale 1 ($)</label>
+        <input type="number" id="comp1" min="0" placeholder="e.g. 340000">
       </div>
-      <div class="checklist">
-        <h3>Repair Cost Checklist</h3>
-        <table class="repair-table" id="repairTable">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Good</th>
-              <th>Fine</th>
-              <th>Bad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Rows inserted by JS -->
-          </tbody>
-        </table>
-        <div class="repair-total">Total Estimated Repairs: $<span id="repairTotal">0</span></div>
+      <div class="form-group">
+        <label>Comparable Sale 2 ($)</label>
+        <input type="number" id="comp2" min="0" placeholder="e.g. 355000">
       </div>
+      <div class="form-group">
+        <label>Comparable Sale 3 ($)</label>
+        <input type="number" id="comp3" min="0" placeholder="e.g. 360000">
+      </div>
+      <button onclick="calculateARV()">Estimate ARV</button>
+      <div class="result" id="arvResult"></div>
     </div>
+
+    <div class="analyzer">
+      <h2>Repair & Remodel Costs</h2>
+      <div style="margin-bottom:1rem;">
+        <button id="repairTab" onclick="showTab('repair')" style="background:#4285f4;">Repair</button>
+        <button id="remodelTab" onclick="showTab('remodel')" style="background:#ccc;color:#333;">Remodel</button>
+      </div>
+      <div id="repairPanel">
+        <div class="repair-list">
+          <div class="repair-item"><label>Roof ($)</label><input type="number" id="repairRoof" min="0"></div>
+          <div class="repair-item"><label>HVAC ($)</label><input type="number" id="repairHVAC" min="0"></div>
+          <div class="repair-item"><label>Plumbing ($)</label><input type="number" id="repairPlumbing" min="0"></div>
+          <div class="repair-item"><label>Paint ($)</label><input type="number" id="repairPaint" min="0"></div>
+          <div class="repair-item"><label>Windows ($)</label><input type="number" id="repairWindows" min="0"></div>
+        </div>
+      </div>
+      <div id="remodelPanel" style="display:none;">
+        <div class="repair-list">
+          <div class="repair-item"><label>Wall Panels ($)</label><input type="number" id="remodelWallPanels" min="0"></div>
+          <div class="repair-item"><label>Cabinets ($)</label><input type="number" id="remodelCabinets" min="0"></div>
+          <div class="repair-item"><label>Flooring ($)</label><input type="number" id="remodelFlooring" min="0"></div>
+          <div class="repair-item"><label>Countertops ($)</label><input type="number" id="remodelCountertops" min="0"></div>
+          <div class="repair-item"><label>Lighting ($)</label><input type="number" id="remodelLighting" min="0"></div>
+        </div>
+      </div>
+      <button onclick="calculateRepairs()">Calculate Total</button>
+      <div class="result" id="repairResult"></div>
+    </div>
+
     <script>
-      // Repair items with cost for each condition
-      const repairItems = [
-        { label: 'Roof', good: 0, fine: 3000, bad: 8000 },
-        { label: 'HVAC', good: 0, fine: 2000, bad: 6000 },
-        { label: 'Plumbing', good: 0, fine: 1500, bad: 4000 },
-        { label: 'Electrical', good: 0, fine: 1200, bad: 3500 },
-        { label: 'Kitchen Remodel', good: 0, fine: 5000, bad: 12000 },
-        { label: 'Bathroom Remodel', good: 0, fine: 3000, bad: 7000 },
-        { label: 'Flooring', good: 0, fine: 2000, bad: 5000 },
-        { label: 'Windows', good: 0, fine: 1500, bad: 4000 },
-        { label: 'Paint (Interior/Exterior)', good: 0, fine: 1200, bad: 3500 },
-        { label: 'Landscaping', good: 0, fine: 800, bad: 2000 }
-      ];
-
-      const repairTableBody = document.querySelector('#repairTable tbody');
-      repairItems.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.label}</td>
-          <td><input type="radio" name="repair${idx}" value="good" onchange="updateRepairTotal()" checked></td>
-          <td><input type="radio" name="repair${idx}" value="fine" onchange="updateRepairTotal()"></td>
-          <td><input type="radio" name="repair${idx}" value="bad" onchange="updateRepairTotal()"></td>
-        `;
-        repairTableBody.appendChild(tr);
-      });
-
-      function updateRepairTotal() {
-        let total = 0;
-        repairItems.forEach((item, idx) => {
-          const radios = document.getElementsByName(`repair${idx}`);
-          let val = 'good';
-          radios.forEach(r => { if (r.checked) val = r.value; });
-          total += item[val];
-        });
-        document.getElementById('repairTotal').textContent = total;
-        document.getElementById('repairCosts').value = total;
-      }
-
-      // Initial calculation
-      updateRepairTotal();
-
-
-
-      function calculateWholesale() {
-        const arv = parseFloat(document.getElementById('arv').value);
-        const repairCosts = parseFloat(document.getElementById('repairCosts').value);
-        const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
-        const assignmentFee = parseFloat(document.getElementById('assignmentFee').value);
-        const closingCosts = parseFloat(document.getElementById('closingCosts').value);
-        if (isNaN(arv) || isNaN(repairCosts) || isNaN(purchasePrice) || isNaN(assignmentFee) || isNaN(closingCosts)) {
-          document.getElementById('result').innerHTML = 'Please fill in all fields.';
+      function calculateARV() {
+        const comp1 = parseFloat(document.getElementById('comp1').value);
+        const comp2 = parseFloat(document.getElementById('comp2').value);
+        const comp3 = parseFloat(document.getElementById('comp3').value);
+        let comps = [comp1, comp2, comp3].filter(x => !isNaN(x));
+        if (comps.length === 0) {
+          document.getElementById('arvResult').innerHTML = 'Enter at least one comp.';
           return;
         }
-        // Typical formula: MAO = (ARV x 0.7) - Repair Costs - Assignment Fee - Closing Costs
-        const mao = (arv * 0.7) - repairCosts - assignmentFee - closingCosts;
-        const profit = purchasePrice - mao;
-        document.getElementById('result').innerHTML =
-          `<strong>Max Allowable Offer (MAO):</strong> $${mao.toFixed(2)}<br>
-          <strong>Your Profit (if purchased at entered price):</strong> $${profit.toFixed(2)}`;
+        const arv = comps.reduce((a, b) => a + b, 0) / comps.length;
+        document.getElementById('arvResult').innerHTML = `Estimated ARV: $${arv.toFixed(2)}`;
+      }
+
+      function showTab(tab) {
+        document.getElementById('repairPanel').style.display = tab === 'repair' ? '' : 'none';
+        document.getElementById('remodelPanel').style.display = tab === 'remodel' ? '' : 'none';
+        document.getElementById('repairTab').style.background = tab === 'repair' ? '#4285f4' : '#ccc';
+        document.getElementById('repairTab').style.color = tab === 'repair' ? '#fff' : '#333';
+        document.getElementById('remodelTab').style.background = tab === 'remodel' ? '#4285f4' : '#ccc';
+        document.getElementById('remodelTab').style.color = tab === 'remodel' ? '#fff' : '#333';
+      }
+
+      function calculateRepairs() {
+        let total = 0;
+        // Repair costs
+        const repairFields = ['repairRoof', 'repairHVAC', 'repairPlumbing', 'repairPaint', 'repairWindows'];
+        repairFields.forEach(id => {
+          const val = parseFloat(document.getElementById(id).value);
+          if (!isNaN(val)) total += val;
+        });
+        // Remodel costs
+        const remodelFields = ['remodelWallPanels', 'remodelCabinets', 'remodelFlooring', 'remodelCountertops', 'remodelLighting'];
+        remodelFields.forEach(id => {
+          const val = parseFloat(document.getElementById(id).value);
+          if (!isNaN(val)) total += val;
+        });
+        document.getElementById('repairResult').innerHTML = `Total Repair & Remodel Costs: $${total.toFixed(2)}`;
       }
     </script>
-  </body>
-  </html>
-
-
+</body>
+</html>
 
