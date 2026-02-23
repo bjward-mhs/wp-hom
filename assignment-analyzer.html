@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Deal Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .analyzer {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 400px;
+      margin-bottom: 2rem;
+    }
+    .analyzer h2 {
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .repair-list {
+      margin-bottom: 1rem;
+    }
+    .repair-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .repair-item label {
+      flex: 1;
+      font-weight: normal;
+      margin-bottom: 0;
+    }
+    .repair-item input[type="number"] {
+      width: 80px;
+      margin-left: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #4285f4;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357ae8;
+    }
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    .checklist {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      width: 400px;
+    }
+    .checklist h3 {
+      margin-top: 0;
+    }
+    .checklist ul {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="analyzer">
+    <h2>Assignment Deal Analyzer</h2>
+    <div class="form-group">
+      <label for="arv">After Repair Value (ARV) ($)</label>
+      <input type="number" id="arv" min="0" placeholder="e.g. 350000">
+    </div>
+    <div class="form-group">
+      <label for="assignmentFee">Your Assignment Fee ($)</label>
+      <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000">
+    </div>
+    <div class="form-group">
+      <label for="closingCosts">Estimated Closing Costs ($)</label>
+      <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000">
+    </div>
+    <div class="form-group">
+      <label>Estimate Repair Costs (checklist below):</label>
+      <input type="number" id="repairCosts" min="0" placeholder="Auto-calculated" readonly>
+    </div>
+    <button onclick="calculateTargetPrice()">Calculate Target Price</button>
+    <div class="result" id="result"></div>
+  </div>
+  <div class="checklist">
+    <h3>Repair Cost Checklist</h3>
+    <ul id="repairChecklist">
+      <!-- Checklist items will be inserted here -->
+    </ul>
+    <div><strong>Total Estimated Repairs:</strong> $<span id="repairTotal">0</span></div>
+  </div>
+  <script>
+    // Typical repair items and average costs (can be adjusted)
+    const repairItems = [
+      { label: 'Roof', cost: 8000 },
+      { label: 'HVAC', cost: 6000 },
+      { label: 'Plumbing', cost: 4000 },
+      { label: 'Electrical', cost: 3500 },
+      { label: 'Kitchen Remodel', cost: 12000 },
+      { label: 'Bathroom Remodel', cost: 7000 },
+      { label: 'Flooring', cost: 5000 },
+      { label: 'Windows', cost: 4000 },
+      { label: 'Paint (Interior/Exterior)', cost: 3500 },
+      { label: 'Landscaping', cost: 2000 }
+    ];
+
+    const checklist = document.getElementById('repairChecklist');
+    repairItems.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.className = 'repair-item';
+      li.innerHTML = `<input type="checkbox" id="repair${idx}" onchange="updateRepairTotal()"> <label for="repair${idx}">${item.label} (est. $${item.cost})</label>`;
+      checklist.appendChild(li);
+    });
+
+    function updateRepairTotal() {
+      let total = 0;
+      repairItems.forEach((item, idx) => {
+        if (document.getElementById(`repair${idx}`).checked) {
+          total += item.cost;
+        }
+      });
+      document.getElementById('repairTotal').textContent = total;
+      document.getElementById('repairCosts').value = total;
+    }
+
+    function calculateTargetPrice() {
+      const arv = parseFloat(document.getElementById('arv').value);
+      const assignmentFee = parseFloat(document.getElementById('assignmentFee').value);
+      const closingCosts = parseFloat(document.getElementById('closingCosts').value);
+      const repairCosts = parseFloat(document.getElementById('repairCosts').value);
+      if (isNaN(arv) || isNaN(assignmentFee) || isNaN(closingCosts)) {
+        document.getElementById('result').innerHTML = 'Please fill in all fields.';
+        return;
+      }
+      // MAO = (ARV x 0.7) - Repair Costs - Assignment Fee - Closing Costs
+      const mao = (arv * 0.7) - repairCosts - assignmentFee - closingCosts;
+      document.getElementById('result').innerHTML =
+        `<strong>Target Price to Work Seller Down To:</strong> $${mao.toFixed(2)}<br>
+        <small>(This is the max you should pay to make your assignment fee at the entered ARV and repair estimate.)</small>`;
+    }
+  </script>
+</body>
+</html>
