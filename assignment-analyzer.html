@@ -94,84 +94,37 @@
     }
   </style>
 </head>
-<body>
-  <div class="analyzer">
-    <h2>Assignment Deal Analyzer</h2>
-    <div class="form-group">
-      <label for="arv">After Repair Value (ARV) ($)</label>
-      <input type="number" id="arv" min="0" placeholder="e.g. 350000">
+  <body>
+    <div class="analyzer">
+      <h2>ARV Calculator</h2>
+      <div class="form-group">
+        <label>Comparable Sale 1 ($)</label>
+        <input type="number" id="comp1" min="0" placeholder="e.g. 340000">
+      </div>
+      <div class="form-group">
+        <label>Comparable Sale 2 ($)</label>
+        <input type="number" id="comp2" min="0" placeholder="e.g. 355000">
+      </div>
+      <div class="form-group">
+        <label>Comparable Sale 3 ($)</label>
+        <input type="number" id="comp3" min="0" placeholder="e.g. 360000">
+      </div>
+      <button onclick="calculateARV()">Estimate ARV</button>
+      <div class="result" id="arvResult"></div>
     </div>
-    <div class="form-group">
-      <label for="assignmentFee">Your Assignment Fee ($)</label>
-      <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000">
-    </div>
-    <div class="form-group">
-      <label for="closingCosts">Estimated Closing Costs ($)</label>
-      <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000">
-    </div>
-    <div class="form-group">
-      <label>Estimate Repair Costs (checklist below):</label>
-      <input type="number" id="repairCosts" min="0" placeholder="Auto-calculated" readonly>
-    </div>
-    <button onclick="calculateTargetPrice()">Calculate Target Price</button>
-    <div class="result" id="result"></div>
-  </div>
-  <div class="checklist">
-    <h3>Repair Cost Checklist</h3>
-    <ul id="repairChecklist">
-      <!-- Checklist items will be inserted here -->
-    </ul>
-    <div><strong>Total Estimated Repairs:</strong> $<span id="repairTotal">0</span></div>
-  </div>
-  <script>
-    // Typical repair items and average costs (can be adjusted)
-    const repairItems = [
-      { label: 'Roof', cost: 8000 },
-      { label: 'HVAC', cost: 6000 },
-      { label: 'Plumbing', cost: 4000 },
-      { label: 'Electrical', cost: 3500 },
-      { label: 'Kitchen Remodel', cost: 12000 },
-      { label: 'Bathroom Remodel', cost: 7000 },
-      { label: 'Flooring', cost: 5000 },
-      { label: 'Windows', cost: 4000 },
-      { label: 'Paint (Interior/Exterior)', cost: 3500 },
-      { label: 'Landscaping', cost: 2000 }
-    ];
-
-    const checklist = document.getElementById('repairChecklist');
-    repairItems.forEach((item, idx) => {
-      const li = document.createElement('li');
-      li.className = 'repair-item';
-      li.innerHTML = `<input type="checkbox" id="repair${idx}" onchange="updateRepairTotal()"> <label for="repair${idx}">${item.label} (est. $${item.cost})</label>`;
-      checklist.appendChild(li);
-    });
-
-    function updateRepairTotal() {
-      let total = 0;
-      repairItems.forEach((item, idx) => {
-        if (document.getElementById(`repair${idx}`).checked) {
-          total += item.cost;
+    <script>
+      function calculateARV() {
+        const comp1 = parseFloat(document.getElementById('comp1').value);
+        const comp2 = parseFloat(document.getElementById('comp2').value);
+        const comp3 = parseFloat(document.getElementById('comp3').value);
+        let comps = [comp1, comp2, comp3].filter(x => !isNaN(x));
+        if (comps.length === 0) {
+          document.getElementById('arvResult').innerHTML = 'Enter at least one comp.';
+          return;
         }
-      });
-      document.getElementById('repairTotal').textContent = total;
-      document.getElementById('repairCosts').value = total;
-    }
-
-    function calculateTargetPrice() {
-      const arv = parseFloat(document.getElementById('arv').value);
-      const assignmentFee = parseFloat(document.getElementById('assignmentFee').value);
-      const closingCosts = parseFloat(document.getElementById('closingCosts').value);
-      const repairCosts = parseFloat(document.getElementById('repairCosts').value);
-      if (isNaN(arv) || isNaN(assignmentFee) || isNaN(closingCosts)) {
-        document.getElementById('result').innerHTML = 'Please fill in all fields.';
-        return;
+        const arv = comps.reduce((a, b) => a + b, 0) / comps.length;
+        document.getElementById('arvResult').innerHTML = `Estimated ARV: $${arv.toFixed(2)}`;
       }
-      // MAO = (ARV x 0.7) - Repair Costs - Assignment Fee - Closing Costs
-      const mao = (arv * 0.7) - repairCosts - assignmentFee - closingCosts;
-      document.getElementById('result').innerHTML =
-        `<strong>Target Price to Work Seller Down To:</strong> $${mao.toFixed(2)}<br>
-        <small>(This is the max you should pay to make your assignment fee at the entered ARV and repair estimate.)</small>`;
-    }
-  </script>
+    </script>
 </body>
 </html>
