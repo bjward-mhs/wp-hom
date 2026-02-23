@@ -111,48 +111,33 @@
   </head>
   <body>
     <div class="container">
-      <div style="display: flex; flex-direction: column; width: 100%; max-width: 350px;">
-        <div class="arv-calc" style="background: #fff; padding: 1.2rem 2rem 1.2rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem;">
-          <h3 style="margin-top:0;">ARV Calculator</h3>
-          <div class="form-group">
-            <label>Comparable Sale 1 ($)</label>
-            <input type="number" id="comp1" min="0" placeholder="e.g. 340000">
-          </div>
-          <div class="form-group">
-            <label>Comparable Sale 2 ($)</label>
-            <input type="number" id="comp2" min="0" placeholder="e.g. 355000">
-          </div>
-          <div class="form-group">
-            <label>Comparable Sale 3 ($)</label>
-            <input type="number" id="comp3" min="0" placeholder="e.g. 360000">
-          </div>
-          <button onclick="calculateARV()" style="margin-bottom: 0.5rem;">Estimate ARV</button>
-          <div id="arvResult" style="font-size:1rem; color:#333;"></div>
+      <div class="calculator">
+        <h2>Real Estate Calculator</h2>
+        <div class="form-group">
+          <label for="arv">After Repair Value (ARV) ($)</label>
+          <input type="number" id="arv" min="0" placeholder="e.g. 350000">
         </div>
-        <div class="calculator">
-          <h2>Real Estate Calculator</h2>
-          <div class="form-group">
-            <label for="arv">After Repair Value (ARV) ($)</label>
-            <input type="number" id="arv" min="0" placeholder="e.g. 350000">
-          </div>
-          <div class="form-group">
-            <label for="repairCosts">Repair Costs ($)</label>
-            <input type="number" id="repairCosts" min="0" placeholder="Auto-calculated" readonly>
-          </div>
-          <div class="form-group">
-            <label for="purchasePrice">Purchase Price ($)</label>
-            <input type="number" id="purchasePrice" min="0" placeholder="e.g. 200000">
-          </div>
-          <div class="form-group">
-            <label for="assignmentFee">Assignment Fee ($)</label>
-            <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000">
-          </div>
-          <div class="form-group">
-            <label for="closingCosts">Closing Costs ($)</label>
-            <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000">
-          </div>
-          <button onclick="calculateWholesale()">Calculate</button>
-          <div class="result" id="result"></div>
+        <div class="form-group">
+          <label for="repairCosts">Repair Costs ($)</label>
+          <input type="number" id="repairCosts" min="0" placeholder="Auto-calculated" readonly>
+        </div>
+        <div class="form-group">
+          <label for="purchasePrice">Purchase Price ($)</label>
+          <input type="number" id="purchasePrice" min="0" placeholder="e.g. 200000">
+        </div>
+        <div class="form-group">
+          <label for="assignmentFee">Assignment Fee ($)</label>
+          <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000">
+        </div>
+        <div class="form-group">
+          <label for="closingCosts">Closing Costs ($)</label>
+          <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000">
+        </div>
+        <button onclick="calculateWholesale()">Calculate</button>
+        <div class="result" id="result"></div>
+        <div style="margin-top:2rem; text-align:center;">
+          <button onclick="window.open('assignment-analyzer.html', '_blank')" style="background:#6c47e6;">Open ARV Calculator</button>
+          <div style="font-size:0.95rem; color:#555; margin-top:0.5rem;">(Opens in new tab)</div>
         </div>
       </div>
       <div class="checklist">
@@ -215,19 +200,7 @@
       // Initial calculation
       updateRepairTotal();
 
-      function calculateARV() {
-        const comp1 = parseFloat(document.getElementById('comp1').value);
-        const comp2 = parseFloat(document.getElementById('comp2').value);
-        const comp3 = parseFloat(document.getElementById('comp3').value);
-        let comps = [comp1, comp2, comp3].filter(x => !isNaN(x));
-        if (comps.length === 0) {
-          document.getElementById('arvResult').innerHTML = 'Enter at least one comp.';
-          return;
-        }
-        const arv = comps.reduce((a, b) => a + b, 0) / comps.length;
-        document.getElementById('arvResult').innerHTML = `Estimated ARV: $${arv.toFixed(2)}`;
-        document.getElementById('arv').value = arv.toFixed(2);
-      }
+
 
       function calculateWholesale() {
         const arv = parseFloat(document.getElementById('arv').value);
@@ -249,5 +222,6 @@
     </script>
   </body>
   </html>
+
 
 
