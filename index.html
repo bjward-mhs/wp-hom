@@ -1,47 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real Estate Offer Calculator</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-    .container { max-width: 400px; margin: 40px auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    h2 { text-align: center; }
-    label { display: block; margin-top: 16px; }
-    input[type="number"] { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
-    button { width: 100%; margin-top: 24px; padding: 12px; background: #007bff; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    .result { margin-top: 24px; font-size: 18px; text-align: center; color: #28a745; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Offer Calculator</h2>
-    <form id="calcForm">
-      <label for="arv">ARV (After Repair Value):</label>
-      <input type="number" id="arv" name="arv" required>
-      <label for="repairs">Repair Costs:</label>
-      <input type="number" id="repairs" name="repairs" required>
-      <label for="fee">Desired Assignment Fee (Your profit):</label>
-      <input type="number" id="fee" name="fee" required>
-      <button type="submit">Calculate Offer</button>
-    </form>
-    <div class="result" id="result"></div>
-  </div>
-  <script>
-    document.getElementById('calcForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const arv = parseFloat(document.getElementById('arv').value);
-      const repairs = parseFloat(document.getElementById('repairs').value);
-      const fee = parseFloat(document.getElementById('fee').value);
-      if (isNaN(arv) || isNaN(repairs) || isNaN(fee)) {
-        document.getElementById('result').textContent = 'Please enter valid numbers.';
-        return;
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
       }
-      const offer = (arv * 0.70) - repairs - fee;
-      document.getElementById('result').textContent = 'Recommended Offer: $' + offer.toFixed(2);
-    });
-  </script>
-</body>
-</html>
+      .calculator {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 350px;
+      }
+      .calculator h2 {
+        margin-bottom: 1rem;
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: bold;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        background: #4285f4;
+        color: #fff;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #357ae8;
+      }
+      .result {
+        margin-top: 1.5rem;
+        font-size: 1.1rem;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <h2>Real Estate Calculator</h2>
+      <div class="form-group">
+        <label for="homePrice">Home Price ($)</label>
+        <input type="number" id="homePrice" min="0" placeholder="e.g. 350000">
+      </div>
+      <div class="form-group">
+        <label for="downPayment">Down Payment ($)</label>
+        <input type="number" id="downPayment" min="0" placeholder="e.g. 70000">
+      </div>
+      <div class="form-group">
+        <label for="interestRate">Interest Rate (%)</label>
+        <input type="number" id="interestRate" min="0" step="0.01" placeholder="e.g. 4.5">
+      </div>
+      <div class="form-group">
+        <label for="loanTerm">Loan Term (years)</label>
+        <input type="number" id="loanTerm" min="1" placeholder="e.g. 30">
+      </div>
+      <button onclick="calculateMortgage()">Calculate</button>
+      <div class="result" id="result"></div>
+    </div>
+    <script>
+      function calculateMortgage() {
+        const price = parseFloat(document.getElementById('homePrice').value);
+        const down = parseFloat(document.getElementById('downPayment').value);
+        const rate = parseFloat(document.getElementById('interestRate').value);
+        const term = parseInt(document.getElementById('loanTerm').value);
+        if (isNaN(price) || isNaN(down) || isNaN(rate) || isNaN(term)) {
+          document.getElementById('result').innerHTML = 'Please fill in all fields.';
+          return;
+        }
+        const loanAmount = price - down;
+        const monthlyRate = rate / 100 / 12;
+        const numPayments = term * 12;
+        const monthlyPayment = monthlyRate === 0 ? loanAmount / numPayments :
+          (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numPayments));
+        document.getElementById('result').innerHTML =
+          `<strong>Monthly Payment:</strong> $${monthlyPayment.toFixed(2)}<br>
+          <strong>Total Payment:</strong> $${(monthlyPayment * numPayments).toFixed(2)}<br>
+          <strong>Total Interest:</strong> $${((monthlyPayment * numPayments) - loanAmount).toFixed(2)}`;
+      }
+    </script>
+  </body>
+  </html>
+
