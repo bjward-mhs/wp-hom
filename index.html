@@ -58,8 +58,7 @@
         padding: 18px;
       }
 
-      .card h2,
-      .card h3 {
+      .card h2 {
         margin: 0 0 12px 0;
       }
 
@@ -158,8 +157,7 @@
         <section class="card" aria-labelledby="arv-title">
           <h2 id="arv-title">ARV Calculator</h2>
           <p class="subtle">
-            Enter 1–3 comparable sales. We’ll average them and fill the ARV for
-            the MAO calc.
+            Enter 1–3 comps. We’ll average them and fill ARV for MAO.
           </p>
 
           <div class="form-group">
@@ -182,20 +180,27 @@
           <div class="result" id="arvResult" aria-live="polite"></div>
         </section>
 
-        <!-- Middle: MAO Calculator -->
-        <section class="card" aria-labelledby="mao-title">
-          <h2 id="mao-title">MAO Calculator</h2>
+        <!-- Middle: Wholesaling (Assignment) Calculator -->
+        <section class="card" aria-labelledby="wholesale-title">
+          <h2 id="wholesale-title">Wholesaling Calculator</h2>
           <p class="subtle">
-            Uses the common formula: <strong>MAO = (ARV × 0.7) - Repairs - Fees</strong>
+            <strong>MAO = (ARV × 0.7) - Repairs</strong><br />
+            <strong>End Buyer Price = Contract Price + Assignment Fee</strong><br />
+            <strong>Profit = Assignment Fee</strong>
           </p>
 
           <div class="form-group">
             <label for="arv">After Repair Value (ARV) ($)</label>
-            <input type="number" id="arv" min="0" placeholder="Filled by ARV calc (or enter manually)" />
+            <input
+              type="number"
+              id="arv"
+              min="0"
+              placeholder="Filled by ARV calc (or enter manually)"
+            />
           </div>
 
           <div class="form-group">
-            <label for="repairCosts">Repair Costs ($)</label>
+            <label for="repairCosts">Repairs ($)</label>
             <input
               type="number"
               id="repairCosts"
@@ -206,21 +211,26 @@
           </div>
 
           <div class="form-group">
-            <label for="purchasePrice">Purchase Price ($)</label>
-            <input type="number" id="purchasePrice" min="0" placeholder="e.g. 200000" />
+            <label for="contractPrice">Contract Price ($)</label>
+            <input
+              type="number"
+              id="contractPrice"
+              min="0"
+              placeholder="What you put it under contract for"
+            />
           </div>
 
           <div class="form-group">
-            <label for="assignmentFee">Assignment Fee ($)</label>
-            <input type="number" id="assignmentFee" min="0" placeholder="e.g. 10000" />
+            <label for="endBuyerPrice">End Buyer Price ($)</label>
+            <input
+              type="number"
+              id="endBuyerPrice"
+              min="0"
+              placeholder="What your cash buyer pays"
+            />
           </div>
 
-          <div class="form-group">
-            <label for="closingCosts">Closing Costs ($)</label>
-            <input type="number" id="closingCosts" min="0" placeholder="e.g. 5000" />
-          </div>
-
-          <button type="button" id="calcMaoBtn">Calculate MAO</button>
+          <button type="button" id="calcWholesaleBtn">Calculate</button>
 
           <div class="result" id="result" aria-live="polite"></div>
         </section>
@@ -252,7 +262,6 @@
     </main>
 
     <script>
-      // Repair items with cost for each condition
       const repairItems = [
         { label: "Roof", good: 0, fine: 3000, bad: 8000 },
         { label: "HVAC", good: 0, fine: 2000, bad: 6000 },
@@ -267,20 +276,24 @@
       ];
 
       const els = {
+        // Repairs
         repairTableBody: document.querySelector("#repairTable tbody"),
         repairTotal: document.getElementById("repairTotal"),
         repairCosts: document.getElementById("repairCosts"),
+
+        // ARV
         arv: document.getElementById("arv"),
         comp1: document.getElementById("comp1"),
         comp2: document.getElementById("comp2"),
         comp3: document.getElementById("comp3"),
         arvResult: document.getElementById("arvResult"),
-        purchasePrice: document.getElementById("purchasePrice"),
-        assignmentFee: document.getElementById("assignmentFee"),
-        closingCosts: document.getElementById("closingCosts"),
-        result: document.getElementById("result"),
         estimateArvBtn: document.getElementById("estimateArvBtn"),
-        calcMaoBtn: document.getElementById("calcMaoBtn"),
+
+        // Wholesaling
+        contractPrice: document.getElementById("contractPrice"),
+        endBuyerPrice: document.getElementById("endBuyerPrice"),
+        calcWholesaleBtn: document.getElementById("calcWholesaleBtn"),
+        result: document.getElementById("result"),
       };
 
       function formatMoney(n) {
@@ -345,38 +358,42 @@
         els.arv.value = arv.toFixed(2);
       }
 
-      function calculateWholesale() {
+      function calculateWholesaling() {
         const arv = parseFloat(els.arv.value);
-        const repairCosts = parseFloat(els.repairCosts.value);
-        const purchasePrice = parseFloat(els.purchasePrice.value);
-        const assignmentFee = parseFloat(els.assignmentFee.value);
-        const closingCosts = parseFloat(els.closingCosts.value);
+        const repairs = parseFloat(els.repairCosts.value);
+        const contractPrice = parseFloat(els.contractPrice.value);
+        const endBuyerPrice = parseFloat(els.endBuyerPrice.value);
 
         if (
           Number.isNaN(arv) ||
-          Number.isNaN(repairCosts) ||
-          Number.isNaN(purchasePrice) ||
-          Number.isNaN(assignmentFee) ||
-          Number.isNaN(closingCosts)
+          Number.isNaN(repairs) ||
+          Number.isNaN(contractPrice) ||
+          Number.isNaN(endBuyerPrice)
         ) {
-          els.result.textContent = "Please fill in all fields.";
+          els.result.textContent = "Please fill in ARV, Repairs, Contract Price, and End Buyer Price.";
           return;
         }
 
-        // Typical formula: MAO = (ARV x 0.7) - Repair Costs - Assignment Fee - Closing Costs
-        const mao = arv * 0.7 - repairCosts - assignmentFee - closingCosts;
+        // EXACT per your rules:
+        // MAO = (ARV * 0.7) - Repairs
+        const mao = arv * 0.7 - repairs;
 
-        // (Keeping your original meaning even though naming is debatable)
-        const profit = purchasePrice - mao;
+        // End Buyer Price = Contract Price + Assignment Fee
+        // Profit = Assignment Fee
+        // Profit must equal End Buyer Price - Contract Price
+        const assignmentFee = endBuyerPrice - contractPrice;
+        const profit = assignmentFee;
 
         els.result.innerHTML = `
-          <strong>Max Allowable Offer (MAO):</strong> $${formatMoney(mao)}<br />
-          <strong>Your Profit (if purchased at entered price):</strong> $${formatMoney(profit)}
+          <strong>MAO (Max Investor Purchase Price):</strong> $${formatMoney(mao)}<br />
+          <strong>Assignment Fee (Profit):</strong> $${formatMoney(profit)}<br />
+          <strong>End Buyer Price:</strong> $${formatMoney(endBuyerPrice)}<br />
+          <strong>Contract Price:</strong> $${formatMoney(contractPrice)}
         `;
       }
 
       els.estimateArvBtn.addEventListener("click", calculateARV);
-      els.calcMaoBtn.addEventListener("click", calculateWholesale);
+      els.calcWholesaleBtn.addEventListener("click", calculateWholesaling);
 
       renderRepairTable();
     </script>
