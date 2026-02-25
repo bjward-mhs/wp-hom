@@ -163,7 +163,39 @@
     </div>
     <a class="hotlink" href="index.html">Back to Main Page</a>
 
-    <!-- No checklist needed for land calculator -->
+    <div class="checklist">
+      <h3>Property Checklist</h3>
+      <ul>
+        <li>
+          <label for="treeRemoval">Tree Removal:</label>
+          <select id="treeRemoval">
+            <option value="none">None</option>
+            <option value="some">Some</option>
+            <option value="full">Full</option>
+          </select>
+        </li>
+        <li>
+          <label for="fencing">Fencing Needed:</label>
+          <input type="checkbox" id="fencing">
+        </li>
+        <li>
+          <label for="driveway">Driveway Needed:</label>
+          <input type="checkbox" id="driveway">
+        </li>
+        <li>
+          <label for="permits">Permits Required:</label>
+          <input type="checkbox" id="permits">
+        </li>
+        <li>
+          <label for="zoning">Zoning Verified:</label>
+          <input type="checkbox" id="zoning">
+        </li>
+        <li>
+          <label for="hoa">HOA Restrictions:</label>
+          <input type="checkbox" id="hoa">
+        </li>
+      </ul>
+    </div>
 
     <script>
       function calculateMAO() {
