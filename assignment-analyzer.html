@@ -96,51 +96,108 @@
 </head>
   <body>
     <div class="analyzer">
-      <h2>ARV Calculator</h2>
+      <h2>Land Wholesale MAO Calculator</h2>
       <div class="form-group">
-        <label>Comparable Sale 1 ($)</label>
-        <input type="number" id="comp1" min="0" placeholder="e.g. 340000">
+        <label>Retail Market Value (RMV) ($)</label>
+        <input type="number" id="rmv" min="0" placeholder="e.g. 50000">
       </div>
       <div class="form-group">
-        <label>Comparable Sale 2 ($)</label>
-        <input type="number" id="comp2" min="0" placeholder="e.g. 355000">
+        <label>Buy Percentage (%)</label>
+        <input type="number" id="buyPct" min="20" max="50" value="30">
       </div>
       <div class="form-group">
-        <label>Comparable Sale 3 ($)</label>
-        <input type="number" id="comp3" min="0" placeholder="e.g. 360000">
+        <label>Target Wholesale Fee ($)</label>
+        <input type="number" id="whFee" min="0" value="10000">
       </div>
-      <button onclick="calculateARV()">Estimate ARV</button>
-      <div class="result" id="arvResult"></div>
+      <div class="form-group">
+        <label>Total Acreage</label>
+        <input type="number" id="acreage" min="0" step="0.01">
+      </div>
+      <hr>
+      <h3>Deduction Section</h3>
+      <div class="form-group">
+        <label>Back Taxes / Liens ($)</label>
+        <input type="number" id="taxes" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Clearing / Grading Estimate ($)</label>
+        <input type="number" id="clearing" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Utilities at Street?</label>
+        <select id="utilities">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Survey / Perc Test ($)</label>
+        <input type="number" id="survey" min="0" value="1500">
+      </div>
+      <hr>
+      <h3>Risk Multipliers</h3>
+      <div class="form-group">
+        <label>Road Access (Landlocked?)</label>
+        <select id="landlocked">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Wetlands / Flood Zone?</label>
+        <select id="flood">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Topography (Sloped/Steep?)</label>
+        <select id="topo">
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+      <button onclick="calculateMAO()">Calculate MAO</button>
+      <div class="result" id="maoResult"></div>
+      <div class="result" id="dealGrade"></div>
     </div>
+    <a class="hotlink" href="index.html">Back to Main Page</a>
 
-    <div class="checklist">
-      <h3>Repair & Remodel Checklist</h3>
-      <ul>
-        <li>Roof</li>
-        <li>HVAC</li>
-        <li>Plumbing</li>
-        <li>Paint</li>
-        <li>Windows</li>
-        <li>Wall Panels</li>
-        <li>Cabinets</li>
-        <li>Flooring</li>
-        <li>Countertops</li>
-        <li>Lighting</li>
-      </ul>
-    </div>
+    <!-- No checklist needed for land calculator -->
 
     <script>
-      function calculateARV() {
-        const comp1 = parseFloat(document.getElementById('comp1').value);
-        const comp2 = parseFloat(document.getElementById('comp2').value);
-        const comp3 = parseFloat(document.getElementById('comp3').value);
-        let comps = [comp1, comp2, comp3].filter(x => !isNaN(x));
-        if (comps.length === 0) {
-          document.getElementById('arvResult').innerHTML = 'Enter at least one comp.';
-          return;
+      function calculateMAO() {
+        // Input variables
+        const rmv = parseFloat(document.getElementById('rmv').value) || 0;
+        const buyPct = (parseFloat(document.getElementById('buyPct').value) || 30) / 100;
+        const whFee = parseFloat(document.getElementById('whFee').value) || 0;
+        const acreage = parseFloat(document.getElementById('acreage').value) || 0;
+        // Deductions
+        const taxes = parseFloat(document.getElementById('taxes').value) || 0;
+        const clearing = parseFloat(document.getElementById('clearing').value) || 0;
+        const utilities = document.getElementById('utilities').value === 'false' ? 10000 : 0;
+        const survey = parseFloat(document.getElementById('survey').value) || 1500;
+        // Risk multipliers
+        let accessMult = document.getElementById('landlocked').value === 'true' ? 0.3 : 1;
+        let floodMult = document.getElementById('flood').value === 'true' ? 0.5 : 1;
+        let topoMult = document.getElementById('topo').value === 'true' ? 0.7 : 1;
+        // Apply multipliers sequentially
+        let adjustedValue = rmv * accessMult * floodMult * topoMult;
+        let baseOffer = adjustedValue * buyPct;
+        let finalMAO = baseOffer - taxes - clearing - utilities - survey - whFee;
+        // Validation: MAO cannot be lower than back taxes
+        if (finalMAO < taxes) {
+          finalMAO = taxes;
         }
-        const arv = comps.reduce((a, b) => a + b, 0) / comps.length;
-        document.getElementById('arvResult').innerHTML = `Estimated ARV: $${arv.toFixed(2)}`;
+        // Deal Grade
+        let grade = 'A';
+        if (finalMAO < taxes) grade = 'F';
+        else if (finalMAO < whFee) grade = 'D';
+        else if (finalMAO < (whFee + taxes + clearing + utilities + survey)) grade = 'C';
+        else if (finalMAO < baseOffer * 0.5) grade = 'B';
+        // Output
+        document.getElementById('maoResult').innerHTML = `Maximum Allowable Offer: $${finalMAO.toFixed(2)}`;
+        document.getElementById('dealGrade').innerHTML = `Deal Grade: <strong>${grade}</strong>`;
       }
     </script>
 </body>
