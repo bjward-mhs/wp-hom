@@ -10,11 +10,15 @@
       background: #f5f5f5;
       margin: 0;
       padding: 0;
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      height: 100vh;
+    }
+    .container {
+      display: flex;
+      gap: 2rem;
+      margin-top: 4rem;
     }
     .analyzer {
       background: #fff;
@@ -22,7 +26,6 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       width: 400px;
-      margin-bottom: 2rem;
     }
     .analyzer h2 {
       margin-bottom: 1rem;
@@ -95,106 +98,107 @@
   </style>
 </head>
   <body>
-    <div class="analyzer">
-      <h2>Land Wholesale MAO Calculator</h2>
-      <div class="form-group">
-        <label>Retail Market Value (RMV) ($)</label>
-        <input type="number" id="rmv" min="0" placeholder="e.g. 50000">
-      </div>
-      <div class="form-group">
-        <label>Buy Percentage (%)</label>
-        <input type="number" id="buyPct" min="20" max="50" value="30">
-      </div>
-      <div class="form-group">
-        <label>Target Wholesale Fee ($)</label>
-        <input type="number" id="whFee" min="0" value="10000">
-      </div>
-      <div class="form-group">
-        <label>Total Acreage</label>
-        <input type="number" id="acreage" min="0" step="0.01">
-      </div>
-      <hr>
-      <h3>Deduction Section</h3>
-      <div class="form-group">
-        <label>Back Taxes / Liens ($)</label>
-        <input type="number" id="taxes" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Clearing / Grading Estimate ($)</label>
-        <input type="number" id="clearing" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Utilities at Street?</label>
-        <select id="utilities">
-          <option value="true">Yes</option>
-          <option value="false">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Survey / Perc Test ($)</label>
-        <input type="number" id="survey" min="0" value="1500">
-      </div>
-      <hr>
-      <h3>Risk Multipliers</h3>
-      <div class="form-group">
-        <label>Road Access (Landlocked?)</label>
-        <select id="landlocked">
-          <option value="false">No</option>
-          <option value="true">Yes</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Wetlands / Flood Zone?</label>
-        <select id="flood">
-          <option value="false">No</option>
-          <option value="true">Yes</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Topography (Sloped/Steep?)</label>
-        <select id="topo">
-          <option value="false">No</option>
-          <option value="true">Yes</option>
-        </select>
-      </div>
-      <button onclick="calculateMAO()">Calculate MAO</button>
-      <div class="result" id="maoResult"></div>
-      <div class="result" id="dealGrade"></div>
-    </div>
-    <a class="hotlink" href="index.html">Back to Main Page</a>
-
-    <div class="checklist">
-      <h3>Property Checklist</h3>
-      <ul>
-        <li>
-          <label for="treeRemoval">Tree Removal:</label>
-          <select id="treeRemoval">
-            <option value="none">None</option>
-            <option value="some">Some</option>
-            <option value="full">Full</option>
+    <div class="container">
+      <div class="analyzer">
+        <h2>Land Wholesale MAO Calculator</h2>
+        <div class="form-group">
+          <label>Retail Market Value (RMV) ($)</label>
+          <input type="number" id="rmv" min="0" placeholder="e.g. 50000">
+        </div>
+        <div class="form-group">
+          <label>Buy Percentage (%)</label>
+          <input type="number" id="buyPct" min="20" max="50" value="30">
+        </div>
+        <div class="form-group">
+          <label>Target Wholesale Fee ($)</label>
+          <input type="number" id="whFee" min="0" value="10000">
+        </div>
+        <div class="form-group">
+          <label>Total Acreage</label>
+          <input type="number" id="acreage" min="0" step="0.01">
+        </div>
+        <hr>
+        <h3>Deduction Section</h3>
+        <div class="form-group">
+          <label>Back Taxes / Liens ($)</label>
+          <input type="number" id="taxes" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Clearing / Grading Estimate ($)</label>
+          <input type="number" id="clearing" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Utilities at Street?</label>
+          <select id="utilities">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
           </select>
-        </li>
-        <li>
-          <label for="fencing">Fencing Needed:</label>
-          <input type="checkbox" id="fencing">
-        </li>
-        <li>
-          <label for="driveway">Driveway Needed:</label>
-          <input type="checkbox" id="driveway">
-        </li>
-        <li>
-          <label for="permits">Permits Required:</label>
-          <input type="checkbox" id="permits">
-        </li>
-        <li>
-          <label for="zoning">Zoning Verified:</label>
-          <input type="checkbox" id="zoning">
-        </li>
-        <li>
-          <label for="hoa">HOA Restrictions:</label>
-          <input type="checkbox" id="hoa">
-        </li>
-      </ul>
+        </div>
+        <div class="form-group">
+          <label>Survey / Perc Test ($)</label>
+          <input type="number" id="survey" min="0" value="1500">
+        </div>
+        <hr>
+        <h3>Risk Multipliers</h3>
+        <div class="form-group">
+          <label>Road Access (Landlocked?)</label>
+          <select id="landlocked">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Wetlands / Flood Zone?</label>
+          <select id="flood">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Topography (Sloped/Steep?)</label>
+          <select id="topo">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <button onclick="calculateMAO()">Calculate MAO</button>
+        <div class="result" id="maoResult"></div>
+        <div class="result" id="dealGrade"></div>
+        <a class="hotlink" href="index.html">Back to Main Page</a>
+      </div>
+      <div class="checklist">
+        <h3>Property Checklist</h3>
+        <ul>
+          <li>
+            <label for="treeRemoval">Tree Removal:</label>
+            <select id="treeRemoval">
+              <option value="none">None</option>
+              <option value="some">Some</option>
+              <option value="full">Full</option>
+            </select>
+          </li>
+          <li>
+            <label for="fencing">Fencing Needed:</label>
+            <input type="checkbox" id="fencing">
+          </li>
+          <li>
+            <label for="driveway">Driveway Needed:</label>
+            <input type="checkbox" id="driveway">
+          </li>
+          <li>
+            <label for="permits">Permits Required:</label>
+            <input type="checkbox" id="permits">
+          </li>
+          <li>
+            <label for="zoning">Zoning Verified:</label>
+            <input type="checkbox" id="zoning">
+          </li>
+          <li>
+            <label for="hoa">HOA Restrictions:</label>
+            <input type="checkbox" id="hoa">
+          </li>
+        </ul>
+      </div>
     </div>
 
     <script>
