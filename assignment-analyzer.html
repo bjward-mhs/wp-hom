@@ -110,10 +110,49 @@
   <body>
     <main class="page">
       <div class="grid">
+
+        <!-- Initial Review Phase -->
+        <section class="card" aria-labelledby="initial-title">
+          <h2 id="initial-title">Initial Review</h2>
+          <p class="subtle">Enter property characteristics for risk adjustments.</p>
+          <div class="form-group">
+            <label for="access">Access</label>
+            <select id="access">
+              <option value="paved">Paved</option>
+              <option value="dirt">Dirt</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="slope">Slope</label>
+            <select id="slope">
+              <option value="flat">Flat</option>
+              <option value="moderate">Moderate</option>
+              <option value="steep">Steep</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="utilities">Utilities</label>
+            <select id="utilities">
+              <option value="on-site">On-site</option>
+              <option value="nearby">Nearby</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="buildability">Build-ability</label>
+            <select id="buildability">
+              <option value="ready">Ready</option>
+              <option value="raw">Raw</option>
+              <option value="protected">Protected (Wetlands)</option>
+            </select>
+          </div>
+        </section>
+
         <!-- Stage 1: The Buy -->
         <section class="card" aria-labelledby="buy-title">
           <h2 id="buy-title">Stage 1: The Buy</h2>
-          <p class="subtle">Enter Market Value, Back Taxes, and Desired Fee to get your low-ball offer.</p>
+          <p class="subtle">Enter Market Value, Back Taxes, and Desired Fee to get your low-ball offer. Adjustments are made based on Initial Review.</p>
           <div class="form-group">
             <label for="marketValue">Market Value ($)</label>
             <input type="number" id="marketValue" min="0" placeholder="e.g. 50000" />
@@ -159,17 +198,40 @@
         return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
       }
 
-      // Stage 1: The Buy
+      // Stage 1: The Buy (with Initial Review logic)
       document.getElementById("calcBuyBtn").addEventListener("click", function () {
-        const mv = parseFloat(document.getElementById("marketValue").value);
+        const mvRaw = parseFloat(document.getElementById("marketValue").value);
         const taxes = parseFloat(document.getElementById("backTaxes").value);
         const fee = parseFloat(document.getElementById("desiredFee").value);
-        if (Number.isNaN(mv) || Number.isNaN(taxes) || Number.isNaN(fee)) {
-          document.getElementById("buyResult").textContent = "Please fill in all fields.";
+        const access = document.getElementById("access").value;
+        const slope = document.getElementById("slope").value;
+        const utilities = document.getElementById("utilities").value;
+        const buildability = document.getElementById("buildability").value;
+        const buyResult = document.getElementById("buyResult");
+        if (Number.isNaN(mvRaw) || Number.isNaN(taxes) || Number.isNaN(fee)) {
+          buyResult.textContent = "Please fill in all fields.";
           return;
         }
-        const offer = mv * 0.65 - taxes - fee;
-        document.getElementById("buyResult").innerHTML = `<strong>Low-Ball Offer:</strong> $${formatMoney(offer)}`;
+        // Build-ability check
+        if (buildability === "protected") {
+          buyResult.innerHTML = `<span style='color:#b91c1c;font-weight:bold;'>DO NOT BUY: Protected (Wetlands)</span>`;
+          return;
+        }
+        let mv = mvRaw;
+        // Access logic
+        if (access === "none") mv *= 0.20;
+        // Slope logic
+        if (slope === "steep") mv *= 0.60;
+        // Utilities logic
+        let devRisk = 0;
+        if (utilities === "none") devRisk = 10000;
+        // Final offer
+        const offer = mv * 0.35 - taxes - fee - devRisk;
+        let adjustments = [];
+        if (access === "none") adjustments.push("Access: None (-80% MV)");
+        if (slope === "steep") adjustments.push("Slope: Steep (-40% MV)");
+        if (utilities === "none") adjustments.push("Utilities: None (-$10,000)");
+        buyResult.innerHTML = `<strong>Low-Ball Offer:</strong> $${formatMoney(offer)}${adjustments.length ? `<br><em>Adjustments: ${adjustments.join(", ")}</em>` : ""}`;
       });
 
       // Stage 2: The Sell
