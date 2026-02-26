@@ -168,7 +168,7 @@
           document.getElementById("buyResult").textContent = "Please fill in all fields.";
           return;
         }
-        const offer = mv * 0.35 - taxes - fee;
+        const offer = mv * 0.65 - taxes - fee;
         document.getElementById("buyResult").innerHTML = `<strong>Low-Ball Offer:</strong> $${formatMoney(offer)}`;
       });
 
